@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Create a Chrome Extension with React and Webpack",
+  "description": "Demo Chrome Extension that uses React and Webpack",
+  "version": "1.0.0",
+  "icons": {
+    "16": "assets/logo-small.png",
+    "48": "assets/logo.png",
+    "128": "assets/logo.png"
+  },
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "assets/logo-small.png",
+      "48": "assets/logo.png",
+      "128": "assets/logo.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScript.js"]
+    }
+  ],
+  "host_permissions": ["<all_urls>"],
+  "permissions": [
+    "scripting",
+    "activeTab",
+    "tabs"
+  ]
+}
