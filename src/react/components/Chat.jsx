@@ -1,4 +1,4 @@
-import React from 'react'
+import { useState } from 'react';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import java from 'react-syntax-highlighter/dist/esm/languages/prism/java';
 import python from 'react-syntax-highlighter/dist/esm/languages/prism/python';
@@ -8,80 +8,56 @@ import js from 'react-syntax-highlighter/dist/esm/languages/prism/javascript';
 import ts from 'react-syntax-highlighter/dist/esm/languages/prism/typescript';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useAIContext } from '../context/AIContext';
+import { useAppContext } from '../context/AppContext';
 
 SyntaxHighlighter.registerLanguage('java', java);
 SyntaxHighlighter.registerLanguage('python', python);
 SyntaxHighlighter.registerLanguage('c', c);
-SyntaxHighlighter.registerLanguage('c++', cpp);
+SyntaxHighlighter.registerLanguage('cpp', cpp);
 SyntaxHighlighter.registerLanguage('javascript', js);
 SyntaxHighlighter.registerLanguage('typescript', ts);
 
 function Chat() {
+    const {title, description, code, language, setCode} = useAppContext(); 
     const { openai } = useAIContext();
-
-    const code =
-        `useEffect(() => {
-    const fetchUserInfo = async () => {
-        setLoading(true);
-        //const { data: { user } } = await supabase.auth.getUser();
-        if(user){
-            const { data, error } = await supabase
-            .from('users')
-            .select('dailyValues')
-            .eq('id', user.id)
-            if (error) {
-                console.log('Error:', error);
-            } else {
-                setUserInfo(data[0].dailyValues);
-            }
-        }
-        setLoading(false);
-    };
-
-
-    fetchUserInfo();
-}, [supabase, location]);`
+    
+    const instructions =
+    `You are a coding tutor who is an expert at leetcode 
+    problems and data structures and algorithms. 
+    Act as a computer software: give me only the requested output, no conversation
+    You are helping a student solve a leetcode problem. 
+    Do not provide any code, but guide the student through the 
+    problem unless explicitly asked for the code.
+    If asked for the code, provide the code in C++.
+    Respond in JSON format with one column named "hint" that contains the response, 
+    and one column named "code" if the user asks for the code.
+    `
 
     async function askQuestion() {
-        const assistant = await openai.beta.assistants.create({
-            name: "LeetCode Assistant",
-            instructions: "You are a coding tutor who is an expert at leetcode problems and data structures and algorithms. You are helping a student solve a leetcode problem. Do not provide the full solution, but guide the student through the problem unless explicitly asked for the solution.",
-            tools: [{ type: "code_interpreter" }],
-            model: "gpt-3.5-turbo-0125"
+        const response = await openai.chat.completions.create({
+            model: 'gpt-3.5-turbo-0125',
+            response_format: {"type": "json_object"},
+            messages: [
+                {
+                    role: 'system',
+                    content: instructions
+                },
+                {
+                    role: 'user',
+                    content: 'How do I solve the two sum leetcode problem, show me the code'
+                }
+            ]
         })
 
-        const thread = await openai.beta.threads.create();
-        const message = await openai.beta.threads.messages.create(
-            thread.id,
-            {
-                role: "user",
-                content: "Give me a hint for leetcode 826"
-            }
-        )
-
-        let run = await openai.beta.threads.runs.createAndPoll(
-            thread.id,
-            {
-                assistant_id: assistant.id,
-            }
-        );
-
-        if (run.status === 'completed') {
-            const messages = await openai.beta.threads.messages.list(
-                run.thread_id
-            );
-            for (const message of messages.data.reverse()) {
-                console.log(`${message.role} > ${message.content[0].text.value}`);
-            }
-        } else {
-            console.log(run.status);
-        }
+        const JSONResponse = JSON.parse(response.choices[0].message.content)
+        console.log(JSONResponse)
+        setCode(JSONResponse.code)
     }
 
     return (
         <div>
             <SyntaxHighlighter
-                language='javascript'
+                language='cpp'
                 style={oneDark}
             >
                 {code}

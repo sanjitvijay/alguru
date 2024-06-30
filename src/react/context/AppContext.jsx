@@ -23,9 +23,9 @@ export const AppContextProvider = ({ children }) => {
                     title: "div > div.flex.w-full.flex-1.flex-col.gap-4.overflow-y-auto.px-4.py-5 > div.flex.items-start.justify-between.gap-4 > div",
                     description: "div > div.flex.w-full.flex-1.flex-col.gap-4.overflow-y-auto.px-4.py-5 > div.elfjS",
                     code: "div.flex.flex-1.flex-col.overflow-hidden.pb-2 > div.flex-1.overflow-hidden > div > div > div.overflow-guard > div.monaco-scrollable-element.editor-scrollable.vs-dark.mac > div.lines-content.monaco-editor-background > div.view-lines.monaco-mouse-cursor-text",
-                    language:"#headlessui-popover-button-\\:r1f\\: > div > button"
+                    language:"div.flex.h-8.items-center.justify-between.border-b.p-1.border-border-quaternary.dark\\:border-border-quaternary > div.flex.flex-nowrap.items-center > div:nth-child(1)"
                 };
-
+                
                 let title = document.querySelector(selectors.title).textContent;
                 let description = document.querySelector(selectors.description).textContent;
                 let codeHTML = document.querySelector(selectors.code).innerText;
@@ -41,13 +41,12 @@ export const AppContextProvider = ({ children }) => {
                 return { title, description, code, language };
             },
         }, (results) => {
+            console.log(results[0].result);
             // results[0].result contains the returned object from the injected function
             setTitle(results[0].result.title);
             setDescription(results[0].result.description);
             setCode(results[0].result.code);
             setLanguage(results[0].result.language);
-            //setLanguage(results[0].result.language);
-            
         });
     }
 
