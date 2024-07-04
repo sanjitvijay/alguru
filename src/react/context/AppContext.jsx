@@ -29,18 +29,11 @@ export const AppContextProvider = ({ children }) => {
                     code: "div.flex.flex-1.flex-col.overflow-hidden.pb-2 > div.flex-1.overflow-hidden > div > div > div.overflow-guard > div.monaco-scrollable-element.editor-scrollable.vs-dark.mac > div.lines-content.monaco-editor-background > div.view-lines.monaco-mouse-cursor-text",
                     language:"div.flex.h-8.items-center.justify-between.border-b.p-1.border-border-quaternary.dark\\:border-border-quaternary > div.flex.flex-nowrap.items-center > div:nth-child(1)"
                 };
-                
+
                 let title = document.querySelector(selectors.title).textContent;
                 let description = document.querySelector(selectors.description).textContent;
-                let codeHTML = document.querySelector(selectors.code).innerText;
+                let code = document.querySelector(selectors.code).innerText;
                 let language = document.querySelector(selectors.language).innerText;
-
-                let code = "";
-                let codeLines = codeHTML.split("<br>");
-                codeLines.forEach(line => {
-                    let lineText = line.replace(/<[^>]*>?/gm, '');
-                    code += lineText + "\n";
-                });
 
                 return { title, description, code, language };
             },
@@ -56,6 +49,8 @@ export const AppContextProvider = ({ children }) => {
             else{
                 setLanguage(results[0].result.language.toLowerCase());
             }
+
+            console.log(results[0].result.code);
         });
     }
 
@@ -71,31 +66,37 @@ export const AppContextProvider = ({ children }) => {
     Respond in JSON format with one column named "hint" that contains the response, 
     and one column named "code" if the user asks for the code.
     `
+    const [chatHistory, setChatHistory] = useState([
+        {
+            role: 'system',
+            content: instructions
+        }
+    ])
+
 
     async function askQuestion() {
+        chatHistory.push({
+            role: 'user',
+            content: `
+            I am solving ${title}, here is the description: ${description}. 
+            
+            This is my code so far using ${language}: ${code} (note: it may be incomplete)
+
+            Please answer this question: ${question}
+            `
+        });
+
         const response = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo-0125',
             response_format: { "type": "json_object" },
-            messages: [
-                {
-                    role: 'system',
-                    content: instructions
-                },
-                {
-                    role: 'user',
-                    content: `
-                    I am solving ${title}. 
-                    
-                    This is my code so far using ${language}: ${code} (note: it may be incomplete)
-
-                    Please answer this question: ${question}
-                    `
-                }
-            ]
+            messages: chatHistory
         })
 
+        chatHistory.push({role: 'system', content: response.choices[0].message.content})
+
+        console.log(chatHistory)
+
         const JSONResponse = JSON.parse(response.choices[0].message.content)
-        console.log(JSONResponse)
         setResponseCode(JSONResponse.code)
         setHint(JSONResponse.hint)
     }
