@@ -15,7 +15,7 @@ const App = () => {
   return (
     <div className='w-[500px] h-[600px] bg-base-100'>
       <Header/>
-      <div className='pt-20 px-5'>
+      <div className='pt-20 px-5 pb-16'>
         <Chat/>
       </div>
       <Footer/>

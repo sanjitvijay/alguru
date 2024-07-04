@@ -7,9 +7,9 @@ import { AIProvider } from './context/AIContext';
 
 const root = createRoot(document.getElementById('root'));
 root.render(
+    <AIProvider>     
     <AppContextProvider>
-    <AIProvider>        
         <App />
-    </AIProvider>
     </AppContextProvider>
+    </AIProvider>
 );

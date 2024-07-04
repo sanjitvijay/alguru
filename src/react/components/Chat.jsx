@@ -18,51 +18,29 @@ SyntaxHighlighter.registerLanguage('javascript', js);
 SyntaxHighlighter.registerLanguage('typescript', ts);
 
 function Chat() {
-    const {title, description, code, language, setCode} = useAppContext(); 
-    const { openai } = useAIContext();
+    const availableLanguages = ['java', 'python', 'c', 'cpp', 'javascript', 'typescript'];
+    const { 
+        language, 
+        hint,
+        responseCode,
+    } = useAppContext();
     
-    const instructions =
-    `You are a coding tutor who is an expert at leetcode 
-    problems and data structures and algorithms. 
-    Act as a computer software: give me only the requested output, no conversation
-    You are helping a student solve a leetcode problem. 
-    Do not provide any code, but guide the student through the 
-    problem unless explicitly asked for the code.
-    If asked for the code, provide the code in C++.
-    Respond in JSON format with one column named "hint" that contains the response, 
-    and one column named "code" if the user asks for the code.
-    `
-
-    async function askQuestion() {
-        const response = await openai.chat.completions.create({
-            model: 'gpt-3.5-turbo-0125',
-            response_format: {"type": "json_object"},
-            messages: [
-                {
-                    role: 'system',
-                    content: instructions
-                },
-                {
-                    role: 'user',
-                    content: 'How do I solve the two sum leetcode problem, show me the code'
-                }
-            ]
-        })
-
-        const JSONResponse = JSON.parse(response.choices[0].message.content)
-        console.log(JSONResponse)
-        setCode(JSONResponse.code)
-    }
-
     return (
-        <div>
-            <SyntaxHighlighter
-                language='cpp'
-                style={oneDark}
-            >
-                {code}
-            </SyntaxHighlighter>
-            <button onClick={askQuestion}>Ask Question</button>
+        <div className='z-0'>
+            {hint && 
+                <div className='card w-full bg-slate-700 p-3'>
+                    {hint}
+                </div>
+            }
+
+            {responseCode && 
+                <SyntaxHighlighter
+                    language={availableLanguages.includes(language) ? language : 'cpp'}
+                    style={oneDark}
+                >
+                    {responseCode}
+                </SyntaxHighlighter>
+            }
         </div>
     )
 }

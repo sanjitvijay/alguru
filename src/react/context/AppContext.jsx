@@ -1,5 +1,5 @@
 import React, { createContext, useState } from 'react';
-
+import { useAIContext } from './AIContext';
 // Create a new context
 const AppContext = createContext();
 export const useAppContext = () => React.useContext(AppContext);
@@ -11,7 +11,11 @@ export const AppContextProvider = ({ children }) => {
     const [description, setDescription] = useState("");
     const [code, setCode] = useState("");
     const [language, setLanguage] = useState("");
+    const [question, setQuestion] = useState("");
 
+    const { openai } = useAIContext();
+    const [hint, setHint] = useState(null); 
+    const [responseCode, setResponseCode] = useState(null);
     // Define any functions or methods you need
     const getProblemInfo = async () => {
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -41,14 +45,61 @@ export const AppContextProvider = ({ children }) => {
                 return { title, description, code, language };
             },
         }, (results) => {
-            console.log(results[0].result);
             // results[0].result contains the returned object from the injected function
             setTitle(results[0].result.title);
             setDescription(results[0].result.description);
             setCode(results[0].result.code);
-            setLanguage(results[0].result.language);
+
+            if(results[0].result.language.toLowerCase() === 'c++'){
+                setLanguage('cpp');
+            }
+            else{
+                setLanguage(results[0].result.language.toLowerCase());
+            }
         });
     }
+
+    const instructions =
+    `You are a coding tutor who is an expert at leetcode 
+    problems and data structures and algorithms. 
+    Act as a computer software: give me only the requested output, no conversation
+    You are helping a student solve a leetcode problem. 
+    Do not provide any code, but guide the student through the 
+    problem unless explicitly asked for the code.
+
+    If asked for the code, provide the code in ${language} and do not format the code with markdown.
+    Respond in JSON format with one column named "hint" that contains the response, 
+    and one column named "code" if the user asks for the code.
+    `
+
+    async function askQuestion() {
+        const response = await openai.chat.completions.create({
+            model: 'gpt-3.5-turbo-0125',
+            response_format: { "type": "json_object" },
+            messages: [
+                {
+                    role: 'system',
+                    content: instructions
+                },
+                {
+                    role: 'user',
+                    content: `
+                    I am solving ${title}. 
+                    
+                    This is my code so far using ${language}: ${code} (note: it may be incomplete)
+
+                    Please answer this question: ${question}
+                    `
+                }
+            ]
+        })
+
+        const JSONResponse = JSON.parse(response.choices[0].message.content)
+        console.log(JSONResponse)
+        setResponseCode(JSONResponse.code)
+        setHint(JSONResponse.hint)
+    }
+
 
     // Return the context provider with the state and functions/methods
     return (
@@ -58,6 +109,10 @@ export const AppContextProvider = ({ children }) => {
             description, setDescription, 
             code, setCode, 
             language, setLanguage, 
+            question, setQuestion,
+            hint, setHint,
+            responseCode, setResponseCode,
+            askQuestion,
             getProblemInfo
         }}>
             {children}
