@@ -6,7 +6,6 @@ import { useAppContext } from "../context/AppContext";
 function Footer() {
     const textareaRef = useRef();
     const {question, setQuestion, askQuestion} = useAppContext();
-    const [loading, setLoading] = useState(false);
 
     const placeholders = 
         ['Give me a hint', 
@@ -33,9 +32,7 @@ function Footer() {
         e.preventDefault();
         textareaRef.current.value = '';
         setQuestion('');
-        setLoading(true);
         await askQuestion();
-        setLoading(false);
     }
 
     return (
@@ -48,8 +45,8 @@ function Footer() {
 
             <div className="btm-nav px-5 pb-2">
             <form>
-                <div class="w-full rounded-md bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px]">
-                    <div class="flex h-10 w-full items-center justify-center bg-base-100 back rounded-[5px]">
+                <div className="w-full rounded-md bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[2px]">
+                    <div className="flex h-10 w-full items-center justify-center bg-base-100 back rounded-[5px]">
                     <input
                             ref={textareaRef}
                             placeholder={placeholder}
