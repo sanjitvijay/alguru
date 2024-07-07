@@ -6,17 +6,14 @@ export const useAppContext = () => React.useContext(AppContext);
 
 // Create a context provider component
 export const AppContextProvider = ({ children }) => {
-    // Define your state variables here
+    const { openai } = useAIContext();
+
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [code, setCode] = useState("");
     const [language, setLanguage] = useState("");
     const [question, setQuestion] = useState("");
 
-    const { openai } = useAIContext();
-    const [hint, setHint] = useState(); 
-    const [responseCode, setResponseCode] = useState(null);
-    // Define any functions or methods you need
     const getProblemInfo = async () => {
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
@@ -64,39 +61,61 @@ export const AppContextProvider = ({ children }) => {
     elements like lists, headers, and tables to make it look like a chat.
     Use $ and $$ delimiters for math equations. 
     `
-    const [chatHistory, setChatHistory] = useState([
+
+    const [messageHistory, setMessageHistory] = useState([
         {
             role: 'system',
             content: instructions
         }
     ])
 
+    const [chatHistory, setChatHistory] = useState([])
 
     async function askQuestion() {
-        chatHistory.push({
-            role: 'user',
-            content: `
-            I am solving ${title}, here is the description: ${description}. 
-            
-            This is my code so far using ${language}: ${code} (note: it may be incomplete)
+        messageHistory.push(
+            {
+                role: 'user',
+                content: `
+                I am solving ${title}, here is the description: ${description}. 
+                
+                This is my code so far using ${language}: ${code} (note: it may be incomplete)
+    
+                Please answer this question: ${question}
+                `
+            }
+        );
 
-            Please answer this question: ${question}
-            `
-        });
+        chatHistory.push(
+            {
+                role: 'user',
+                content: question
+            }
+        );
 
         const response = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo-0125',
             response_format: { "type": "text" },
-            messages: chatHistory
-        })
+            messages: messageHistory
+        });
 
-        chatHistory.push({role: 'system', content: response.choices[0].message.content})
-        console.log(response.choices[0].message.content)
-        setHint(response.choices[0].message.content)
+        const answer = response.choices[0].message.content;
+        messageHistory.push(
+            {
+                role: 'system',
+                content: answer
+            }
+        );
+
+        chatHistory.push(
+            {
+                role: 'system',
+                content: answer
+            }
+        );
+        setMessageHistory([...messageHistory])
+        setChatHistory([...chatHistory]);
     }
 
-
-    // Return the context provider with the state and functions/methods
     return (
         <AppContext.Provider value=
         {{ 
@@ -105,8 +124,7 @@ export const AppContextProvider = ({ children }) => {
             code, setCode, 
             language, setLanguage, 
             question, setQuestion,
-            hint, setHint,
-            responseCode, setResponseCode,
+            chatHistory, setChatHistory,
             askQuestion,
             getProblemInfo
         }}>
