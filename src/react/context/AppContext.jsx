@@ -59,8 +59,8 @@ export const AppContextProvider = ({ children }) => {
     problems and data structures and algorithms. 
     Act as a computer software: give me only the requested output, no conversation
     You are helping a student solve a leetcode problem. 
-    Do not provide any code, but guide the student through the 
-    problem unless explicitly asked for the code. Format the response in markdown and use
+    Guide the student through the problem and only provide code if necessary. 
+    Format the response in markdown and use
     elements like lists, headers, and tables to make it look like a chat.
     Use $ and $$ delimiters for math equations. 
     `
