@@ -6,7 +6,6 @@ import cpp from 'react-syntax-highlighter/dist/esm/languages/prism/cpp';
 import js from 'react-syntax-highlighter/dist/esm/languages/prism/javascript';
 import ts from 'react-syntax-highlighter/dist/esm/languages/prism/typescript';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { useAppContext } from '../context/AppContext';
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -22,7 +21,7 @@ SyntaxHighlighter.registerLanguage('ts', ts);
 
 function SystemChat({response}) {
     return (
-        <div className='prose prose-sm'>
+        <div className='prose prose-sm my-2'>
             <Markdown
                 remarkPlugins={[remarkGfm, remarkMath]}
                 rehypePlugins={[rehypeKatex]}
