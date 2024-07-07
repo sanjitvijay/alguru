@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import React, {createContext, useRef, useState} from 'react';
 import { useAIContext } from './AIContext';
 // Create a new context
 const AppContext = createContext();
@@ -66,20 +66,26 @@ export const AppContextProvider = ({ children }) => {
         {
             role: 'system',
             content: instructions
+        },
+        {
+            role: 'user',
+            content: `
+                I am solving ${title}, here is the description: ${description}.
+            `
         }
     ])
 
-    const [chatHistory, setChatHistory] = useState([])
+    const [chatHistory, setChatHistory] = useState([]);
+    const [response, setResponse] = useState('');
+    const responseRef = useRef("");
 
     async function askQuestion() {
         messageHistory.push(
             {
                 role: 'user',
                 content: `
-                I am solving ${title}, here is the description: ${description}. 
-                
                 This is my code so far using ${language}: ${code} (note: it may be incomplete)
-    
+                
                 Please answer this question: ${question}
                 `
             }
@@ -92,28 +98,38 @@ export const AppContextProvider = ({ children }) => {
             }
         );
 
-        const response = await openai.chat.completions.create({
+        const stream = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo-0125',
-            response_format: { "type": "text" },
-            messages: messageHistory
+            messages: messageHistory,
+            stream: true
         });
-
-        const answer = response.choices[0].message.content;
-        messageHistory.push(
-            {
-                role: 'system',
-                content: answer
-            }
-        );
 
         chatHistory.push(
             {
                 role: 'system',
-                content: answer
+                content: response
             }
         );
+
+        for await (const chunk of stream){
+            responseRef.current = responseRef.current + (chunk.choices[0]?.delta?.content || "");
+            chatHistory[chatHistory.length - 1].content = responseRef.current;
+            setChatHistory([...chatHistory])
+            setResponse(responseRef.current);
+        }
+
+        messageHistory.push(
+            {
+                role: 'system',
+                content: response
+            }
+        );
+
         setMessageHistory([...messageHistory])
         setChatHistory([...chatHistory]);
+
+        responseRef.current = "";
+        setResponse("");
     }
 
     return (
