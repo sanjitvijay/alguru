@@ -14,7 +14,7 @@ export const AppContextProvider = ({ children }) => {
     const [question, setQuestion] = useState("");
 
     const { openai } = useAIContext();
-    const [hint, setHint] = useState(null); 
+    const [hint, setHint] = useState(); 
     const [responseCode, setResponseCode] = useState(null);
     // Define any functions or methods you need
     const getProblemInfo = async () => {
@@ -60,11 +60,9 @@ export const AppContextProvider = ({ children }) => {
     Act as a computer software: give me only the requested output, no conversation
     You are helping a student solve a leetcode problem. 
     Do not provide any code, but guide the student through the 
-    problem unless explicitly asked for the code.
-
-    If asked for the code, provide the code in ${language} and do not format the code with markdown.
-    Respond in JSON format with one column named "hint" that contains the response, 
-    and one column named "code" if the user asks for the code.
+    problem unless explicitly asked for the code. Format the response in markdown and use
+    elements like lists, headers, and tables to make it look like a chat.
+    Use $ and $$ delimiters for math equations. 
     `
     const [chatHistory, setChatHistory] = useState([
         {
@@ -88,17 +86,13 @@ export const AppContextProvider = ({ children }) => {
 
         const response = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo-0125',
-            response_format: { "type": "json_object" },
+            response_format: { "type": "text" },
             messages: chatHistory
         })
 
         chatHistory.push({role: 'system', content: response.choices[0].message.content})
-
-        console.log(chatHistory)
-
-        const JSONResponse = JSON.parse(response.choices[0].message.content)
-        setResponseCode(JSONResponse.code)
-        setHint(JSONResponse.hint)
+        console.log(response.choices[0].message.content)
+        setHint(response.choices[0].message.content)
     }
 
 
