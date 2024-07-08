@@ -1,19 +1,23 @@
-import {useEffect, useState} from 'react';
+import {useEffect} from 'react';
 import Header from './Header';
 import Footer from './Footer';
-import SystemChat from './SystemChat';
 import {useAppContext} from '../context/AppContext';
-import UserChat from "./UserChat.jsx";
 import Chat from "./Chat.jsx";
 
 const App = () => {
-    const {getProblemInfo, hint} = useAppContext();
+    const {getProblemInfo, setChatHistory, setMessageHistory} = useAppContext();
 
     useEffect(() => {
-        getProblemInfo();
-    }, []);
+        const fetchChatHistory = async () => {
+            await getProblemInfo();
+            const savedMessages = await chrome.storage.session.get(['chatHistory', 'messageHistory']);
 
-    const prompt = `whats the time complexity of my solution`
+            savedMessages.chatHistory ? setChatHistory(savedMessages.chatHistory) : setChatHistory([]);
+            savedMessages.messageHistory ? setMessageHistory(savedMessages.messageHistory) : setMessageHistory([]);
+        }
+
+         fetchChatHistory();
+    }, []);
 
     return (
         <div className='w-[500px] h-[600px] bg-base-100'>
