@@ -14,6 +14,36 @@ export const AppContextProvider = ({ children }) => {
     const [language, setLanguage] = useState("");
     const [question, setQuestion] = useState("");
 
+    const instructions =
+        `You are a coding tutor who is an expert at leetcode 
+    problems and data structures and algorithms. 
+    Act as a computer software: give me only the requested output, no conversation
+    You are helping a student solve a leetcode problem. 
+    Guide the student through the problem and only provide code if necessary. 
+    Format the response in markdown and use
+    elements like lists, headers, and tables to make it look like a chat.
+    Use $ and $$ delimiters for math equations. 
+    `
+
+    const initialMessageHistory = [
+        {
+            role: 'system',
+            content: instructions
+        },
+        {
+            role: 'user',
+            content: `
+                I am solving ${title}, here is the description: ${description}.
+            `
+        }
+    ]
+
+    const [messageHistory, setMessageHistory] = useState(initialMessageHistory);
+
+    const [chatHistory, setChatHistory] = useState([]);
+    const [response, setResponse] = useState('');
+    const responseRef = useRef("");
+
     const getProblemInfo = async () => {
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
@@ -34,7 +64,7 @@ export const AppContextProvider = ({ children }) => {
 
                 return { title, description, code, language };
             },
-        }, (results) => {
+        }, async (results) => {
             // results[0].result contains the returned object from the injected function
             setTitle(results[0].result.title);
             setDescription(results[0].result.description);
@@ -47,37 +77,17 @@ export const AppContextProvider = ({ children }) => {
                 setLanguage(results[0].result.language.toLowerCase());
             }
 
-            console.log(results[0].result.code);
+            const storedProblem = await chrome.storage.session.get('problem');
+            if(storedProblem.problem !== results[0].result.title){
+                await chrome.storage.session.clear();
+                chrome.storage.session.set({messageHistory: initialMessageHistory});
+                chrome.storage.session.set({chatHistory: []});
+                setMessageHistory(initialMessageHistory);
+                setChatHistory([]);
+                chrome.storage.session.set({problem: results[0].result.title});
+            }
         });
     }
-
-    const instructions =
-    `You are a coding tutor who is an expert at leetcode 
-    problems and data structures and algorithms. 
-    Act as a computer software: give me only the requested output, no conversation
-    You are helping a student solve a leetcode problem. 
-    Guide the student through the problem and only provide code if necessary. 
-    Format the response in markdown and use
-    elements like lists, headers, and tables to make it look like a chat.
-    Use $ and $$ delimiters for math equations. 
-    `
-
-    const [messageHistory, setMessageHistory] = useState([
-        {
-            role: 'system',
-            content: instructions
-        },
-        {
-            role: 'user',
-            content: `
-                I am solving ${title}, here is the description: ${description}.
-            `
-        }
-    ])
-
-    const [chatHistory, setChatHistory] = useState([]);
-    const [response, setResponse] = useState('');
-    const responseRef = useRef("");
 
     async function askQuestion() {
         messageHistory.push(
@@ -125,6 +135,9 @@ export const AppContextProvider = ({ children }) => {
             }
         );
 
+        chrome.storage.session.set({messageHistory});
+        chrome.storage.session.set({chatHistory});
+
         setMessageHistory([...messageHistory])
         setChatHistory([...chatHistory]);
 
@@ -140,6 +153,7 @@ export const AppContextProvider = ({ children }) => {
             code, setCode, 
             language, setLanguage, 
             question, setQuestion,
+            messageHistory, setMessageHistory,
             chatHistory, setChatHistory,
             askQuestion,
             getProblemInfo
