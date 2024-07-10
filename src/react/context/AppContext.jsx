@@ -6,7 +6,7 @@ export const useAppContext = () => React.useContext(AppContext);
 
 // Create a context provider component
 export const AppContextProvider = ({ children }) => {
-    const { openai } = useAIContext();
+    const { anthropic } = useAIContext();
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -121,30 +121,32 @@ export const AppContextProvider = ({ children }) => {
             }
         );
 
-        const stream = await openai.chat.completions.create({
-            model: 'gpt-3.5-turbo-0125',
+        const message = await anthropic.messages.create({
+            model: 'claude-3-5-sonnet-20240620',
+            max_tokens: 1000,
             messages: messageHistory,
-            stream: true
         });
+
+        console.log(message)
 
         chatHistory.push(
             {
                 role: 'system',
-                content: response
+                content: message
             }
         );
 
-        for await (const chunk of stream){
-            responseRef.current = responseRef.current + (chunk.choices[0]?.delta?.content || "");
-            chatHistory[chatHistory.length - 1].content = responseRef.current;
-            setChatHistory([...chatHistory])
-            setResponse(responseRef.current);
-        }
+        // for await (const chunk of stream){
+        //     responseRef.current = responseRef.current + (chunk.choices[0]?.delta?.content || "");
+        //     chatHistory[chatHistory.length - 1].content = responseRef.current;
+        //     setChatHistory([...chatHistory])
+        //     setResponse(responseRef.current);
+        // }
 
         messageHistory.push(
             {
                 role: 'system',
-                content: response
+                content: message
             }
         );
 

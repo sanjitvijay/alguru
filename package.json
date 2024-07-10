@@ -48,6 +48,7 @@
     "webpack-dev-server": "^5.0.4"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.3",
     "chrome": "^0.1.0",
     "daisyui": "^4.12.2",
     "openai": "^4.52.0",

@@ -25,7 +25,7 @@
       "js": ["contentScript.js"]
     }
   ],
-  "host_permissions": ["https://leetcode.com/problems/*"],
+  "host_permissions": ["<all_urls>"],
   "permissions": [
     "scripting",
     "activeTab",
