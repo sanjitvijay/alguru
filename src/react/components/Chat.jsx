@@ -1,11 +1,20 @@
 import {useAppContext} from "../context/AppContext.jsx";
 import UserChat from "./UserChat.jsx";
 import SystemChat from "./SystemChat.jsx";
+import {useEffect, useRef} from "react";
 
 
 function Chat() {
     const {chatHistory} = useAppContext();
+    const chatEndRef = useRef(null);
 
+    const scrollToBottom = () => {
+        chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [chatHistory]);
     return (
         <div>
             {chatHistory.map((chat, index) => (
@@ -13,6 +22,7 @@ function Chat() {
                     (<UserChat question={chat.content} key={index}/>) :
                     (<SystemChat response={chat.content} key={index}/>)
             ))}
+            <div ref={chatEndRef}/>
         </div>
     );
 }

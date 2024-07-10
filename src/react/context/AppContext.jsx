@@ -16,13 +16,14 @@ export const AppContextProvider = ({ children }) => {
 
     const instructions =
         `You are a coding tutor who is an expert at leetcode 
-    problems and data structures and algorithms. 
-    Act as a computer software: give me only the requested output, no conversation
-    You are helping a student solve a leetcode problem. 
+    problems and data structures and algorithms. You are helping a student solve a leetcode problem. 
     Guide the student through the problem and only provide code if necessary. 
     Format the response in markdown and use
     elements like lists, headers, and tables to make it look like a chat.
-    Use $ and $$ delimiters for math equations. 
+    Use latex for math expressions and surround expressions with $ for inline math and $$ for block math.
+    
+    Only answer the latest question asked by the student, the other questions are
+    previously asked questions provided for context. 
     `
 
     const initialMessageHistory = [
@@ -43,6 +44,13 @@ export const AppContextProvider = ({ children }) => {
     const [chatHistory, setChatHistory] = useState([]);
     const [response, setResponse] = useState('');
     const responseRef = useRef("");
+
+    const resetHistory = () => {
+        setMessageHistory(initialMessageHistory);
+        setChatHistory([]);
+        chrome.storage.session.set({messageHistory: initialMessageHistory});
+        chrome.storage.session.set({chatHistory: []});
+    }
 
     const getProblemInfo = async () => {
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -86,10 +94,15 @@ export const AppContextProvider = ({ children }) => {
                 setChatHistory([]);
                 chrome.storage.session.set({problem: results[0].result.title});
             }
+            else{
+                const savedMessages = await chrome.storage.session.get(['chatHistory', 'messageHistory']);
+                savedMessages.chatHistory ? setChatHistory(savedMessages.chatHistory) : setChatHistory([]);
+                savedMessages.messageHistory ? setMessageHistory(savedMessages.messageHistory) : setMessageHistory(initialMessageHistory);
+            }
         });
     }
 
-    async function askQuestion() {
+    const askQuestion = async () => {
         messageHistory.push(
             {
                 role: 'user',
@@ -156,7 +169,8 @@ export const AppContextProvider = ({ children }) => {
             messageHistory, setMessageHistory,
             chatHistory, setChatHistory,
             askQuestion,
-            getProblemInfo
+            getProblemInfo,
+            resetHistory
         }}>
             {children}
         </AppContext.Provider>
