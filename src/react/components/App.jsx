@@ -5,18 +5,14 @@ import {useAppContext} from '../context/AppContext';
 import Chat from "./Chat.jsx";
 
 const App = () => {
-    const {getProblemInfo, setChatHistory, setMessageHistory} = useAppContext();
+    const {getProblemInfo} = useAppContext();
 
     useEffect(() => {
-        const fetchChatHistory = async () => {
+        const getInfoWrapper = async () => {
             await getProblemInfo();
-            const savedMessages = await chrome.storage.session.get(['chatHistory', 'messageHistory']);
-
-            savedMessages.chatHistory ? setChatHistory(savedMessages.chatHistory) : setChatHistory([]);
-            savedMessages.messageHistory ? setMessageHistory(savedMessages.messageHistory) : setMessageHistory([]);
         }
 
-         fetchChatHistory();
+         getInfoWrapper();
     }, []);
 
     return (

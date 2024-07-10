@@ -11,6 +11,8 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css'
+import { FaRegClipboard } from "react-icons/fa";
+import {useState} from "react";
 
 SyntaxHighlighter.registerLanguage('java', java);
 SyntaxHighlighter.registerLanguage('python', python);
@@ -20,6 +22,18 @@ SyntaxHighlighter.registerLanguage('js', js);
 SyntaxHighlighter.registerLanguage('ts', ts);
 
 function SystemChat({response}) {
+    const [copyButtonText, setCopyButtonText] = useState('Copy Code');
+
+    const copyToClipboard = (text) => {
+        try {
+            navigator.clipboard.writeText(text);
+        }
+        catch (err) {
+            console.error('Failed to copy: ', err);
+        }
+        setCopyButtonText('Copied!');
+        setTimeout(() => setCopyButtonText('Copy code'), 1000);
+    }
     return (
         <div className='prose prose-sm my-2'>
             <Markdown
@@ -31,13 +45,29 @@ function SystemChat({response}) {
                         const { children, className, node, ...rest } = props
                         const match = /language-(\w+)/.exec(className || '')
                         return match ? (
-                            <SyntaxHighlighter
-                                {...rest}
-                                PreTag="div"
-                                children={String(children).replace(/\n$/, '')}
-                                language={match[1]}
-                                style={oneDark}
-                            />
+                            <div>
+                                <div className='flex justify-between'>
+                                    <div className='text-sm'>{match[1]}</div>
+                                    <button
+                                        className='btn btn-outline btn-xs no-animation'
+                                        onClick={() => copyToClipboard(String(children).replace(/\n$/, ''))}
+                                    >
+                                        <FaRegClipboard size={15}/>
+                                        {copyButtonText}
+                                    </button>
+                                </div>
+
+                                <div className='text-sm'>
+                                    <SyntaxHighlighter
+                                        {...rest}
+                                        PreTag="div"
+                                        children={String(children).replace(/\n$/, '')}
+                                        language={match[1]}
+                                        style={oneDark}
+                                    />
+                                </div>
+
+                            </div>
                         ) : (
                             <code {...rest} className={className}>
                                 {children}
