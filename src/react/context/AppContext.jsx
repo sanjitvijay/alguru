@@ -16,11 +16,11 @@ export const AppContextProvider = ({ children }) => {
 
     const instructions =
         `You are a coding tutor who is an expert at leetcode 
-    problems and data structures and algorithms. You are helping a student solve a leetcode problem. 
-    Guide the student through the problem and only provide code if necessary. 
+    problems and data structures and algorithms. You are helping a student solve a leetcode problem to prepare
+    for a coding interview. Guide the student through the problem and only provide code if necessary. 
     Format the response in markdown and use
     elements like lists, headers, and tables to make it look like a chat.
-    Use latex for math expressions and surround expressions with $ for inline math and $$ for block math.
+    Surround latex math expressions with $ for inline and $$ for block math (especially for big-0 notation).
     
     Only answer the latest question asked by the student, the other questions are
     previously asked questions provided for context. 
@@ -102,6 +102,11 @@ export const AppContextProvider = ({ children }) => {
         });
     }
 
+    const createMessages = () => {
+        const relevantMessages = messageHistory.slice(-6);
+        return [messageHistory[0], ...relevantMessages];
+    }
+
     const askQuestion = async () => {
         messageHistory.push(
             {
@@ -121,9 +126,11 @@ export const AppContextProvider = ({ children }) => {
             }
         );
 
+        const relevantMessages = createMessages();
+
         const stream = await openai.chat.completions.create({
             model: 'gpt-3.5-turbo-0125',
-            messages: messageHistory,
+            messages: relevantMessages,
             stream: true
         });
 
