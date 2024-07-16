@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Create a Chrome Extension with React and Webpack",
-  "description": "Demo Chrome Extension that uses React and Webpack",
+  "name": "LeetCodeAI",
+  "description": "LeetCodeAI is a Chrome Extension chatbot that helps you get better at coding interviews.",
   "version": "1.0.0",
   "icons": {
     "16": "assets/logo.png",
@@ -25,7 +25,6 @@
       "js": ["contentScript.js"]
     }
   ],
-  "host_permissions": ["https://leetcode.com/problems/*"],
   "permissions": [
     "scripting",
     "activeTab",

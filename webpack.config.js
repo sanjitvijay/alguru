@@ -63,6 +63,13 @@ export default {
         use: ['style-loader', 'css-loader', 'postcss-loader'],
       },
       {
+        test: /\.(woff(2)?|ttf|eot)$/,
+        type: 'asset/resource',
+        generator: {
+          filename: './fonts/[name][ext]',
+        },
+      },
+      {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         use: ['file-loader'],
       }
