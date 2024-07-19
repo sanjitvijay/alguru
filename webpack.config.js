@@ -41,6 +41,14 @@ export default {
       ]
     }, 
     ),
+    new CopyPlugin({
+          patterns: [{
+            from: path.resolve('src/react/components/visualization'),
+            to: path.resolve('dist/visualization')
+          },
+          ]
+        },
+    ),
     new DotenvWebpackPlugin()
   ],
   module: {
@@ -72,7 +80,11 @@ export default {
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         use: ['file-loader'],
-      }
+      },
+      {
+        test: /\.html$/i,
+        use: 'raw-loader',
+      },
     ]
   },
   resolve: {

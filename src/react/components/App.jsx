@@ -3,6 +3,7 @@ import Header from './Header';
 import Footer from './Footer';
 import {useAppContext} from '../context/AppContext';
 import Chat from "./Chat.jsx";
+import RenderHtml from "./RenderHtml.jsx";
 
 const App = () => {
     const {getProblemInfo} = useAppContext();
@@ -11,7 +12,6 @@ const App = () => {
         const getInfoWrapper = async () => {
             await getProblemInfo();
         }
-
          getInfoWrapper();
     }, []);
 
@@ -20,6 +20,7 @@ const App = () => {
             <Header/>
             <div className='pt-20 px-5 pb-16'>
                 <Chat/>
+                <RenderHtml/>
             </div>
             <Footer/>
         </div>

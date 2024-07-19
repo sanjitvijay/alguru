@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rotting Oranges Visualization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+        }
+        #controls {
+            margin-bottom: 20px;
+        }
+        #grid {
+            display: grid;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .fresh {
+            background-color: #7FFF7F;
+        }
+        .rotten {
+            background-color: #FF7F7F;
+        }
+        .empty {
+            background-color: #FFFFFF;
+        }
+        #status {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        button {
+            font-size: 16px;
+            padding: 5px 10px;
+            margin: 0 5px;
+        }
+        input {
+            width: 50px;
+        }
+    </style>
+</head>
+<body>
+<h1>Rotting Oranges Visualization</h1>
+<div id="controls">
+    <label for="rows">Rows:</label>
+    <input type="number" id="rows" min="1" max="10" value="3">
+    <label for="cols">Columns:</label>
+    <input type="number" id="cols" min="1" max="10" value="3">
+    <button id="generate">Generate Grid</button>
+    <button id="start">Start Simulation</button>
+    <button id="reset">Reset</button>
+</div>
+<div id="status"></div>
+<div id="grid"></div>
+<script src="script.js"></script>
+</body>
+</html>
