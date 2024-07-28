@@ -6,6 +6,7 @@ export const useAppContext = () => React.useContext(AppContext);
 
 // Create a context provider component
 export const AppContextProvider = ({ children }) => {
+    const baseUrl = 'http://localhost:3000';
     const { openai } = useAIContext();
 
     const [title, setTitle] = useState("");
@@ -18,9 +19,10 @@ export const AppContextProvider = ({ children }) => {
         `You are a coding tutor who is an expert at leetcode 
     problems and data structures and algorithms. You are helping a student solve a leetcode problem to prepare
     for a coding interview. Guide the student through the problem and only provide code if necessary. 
-    Format the response in markdown and use
+    Format the response in github flavored markdown and use
     elements like lists, headers, and tables to make it look like a chat.
-    Surround latex math expressions with $ for inline and $$ for block math (especially for big-0 notation).
+    
+    Use latex for all math expressions and surround math with $. For example, $\\sqrt{c}$ 
     
     Only answer the latest question asked by the student, the other questions are
     previously asked questions provided for context. 
@@ -103,8 +105,11 @@ export const AppContextProvider = ({ children }) => {
     }
 
     const createMessages = () => {
-        const relevantMessages = messageHistory.slice(-6);
-        return [messageHistory[0], ...relevantMessages];
+        if(messageHistory.length > 6){
+            const relevantMessages = messageHistory.slice(-6);
+            return [messageHistory[0], ...relevantMessages];
+        }
+        else return messageHistory;
     }
 
     const askQuestion = async () => {
@@ -129,7 +134,7 @@ export const AppContextProvider = ({ children }) => {
         const relevantMessages = createMessages();
 
         const stream = await openai.chat.completions.create({
-            model: 'gpt-3.5-turbo-0125',
+            model: 'gpt-4o-mini',
             messages: relevantMessages,
             stream: true
         });
@@ -165,6 +170,14 @@ export const AppContextProvider = ({ children }) => {
         setResponse("");
     }
 
+    const fetchVideos = async(problemName) => {
+        const encodedProblemName = encodeURIComponent(problemName);
+        const response = await fetch(`${baseUrl}/videos?problemName=${encodedProblemName}`)
+        const urls = await response.json();
+        console.log(urls)
+        return urls;
+    }
+
     return (
         <AppContext.Provider value=
         {{ 
@@ -177,7 +190,8 @@ export const AppContextProvider = ({ children }) => {
             chatHistory, setChatHistory,
             askQuestion,
             getProblemInfo,
-            resetHistory
+            resetHistory,
+            fetchVideos
         }}>
             {children}
         </AppContext.Provider>
