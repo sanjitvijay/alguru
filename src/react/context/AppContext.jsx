@@ -6,7 +6,6 @@ export const useAppContext = () => React.useContext(AppContext);
 
 // Create a context provider component
 export const AppContextProvider = ({ children }) => {
-    const baseUrl = 'http://localhost:3000';
     const { openai } = useAIContext();
 
     const [title, setTitle] = useState("");
@@ -170,14 +169,6 @@ export const AppContextProvider = ({ children }) => {
         setResponse("");
     }
 
-    const fetchVideos = async(problemName) => {
-        const encodedProblemName = encodeURIComponent(problemName);
-        const response = await fetch(`${baseUrl}/videos?problemName=${encodedProblemName}`)
-        const urls = await response.json();
-        console.log(urls)
-        return urls;
-    }
-
     return (
         <AppContext.Provider value=
         {{ 
@@ -191,7 +182,6 @@ export const AppContextProvider = ({ children }) => {
             askQuestion,
             getProblemInfo,
             resetHistory,
-            fetchVideos
         }}>
             {children}
         </AppContext.Provider>
