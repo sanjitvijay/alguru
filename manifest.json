@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "LeetCodeAI",
-  "description": "LeetCodeAI is a Chrome Extension chatbot that helps you get better at coding interviews.",
+  "name": "Alguru",
+  "description": "Alguru is a Chrome Extension chatbot that helps you get better at coding interviews.",
   "version": "1.0.0",
   "icons": {
     "16": "assets/logo.png",
