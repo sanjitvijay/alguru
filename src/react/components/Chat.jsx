@@ -2,10 +2,11 @@ import {useAppContext} from "../context/AppContext.jsx";
 import UserChat from "./UserChat.jsx";
 import SystemChat from "./SystemChat.jsx";
 import {useEffect, useRef} from "react";
+import {IoTrashOutline} from "react-icons/io5";
 
 
 function Chat() {
-    const {chatHistory} = useAppContext();
+    const {chatHistory, resetHistory} = useAppContext();
     const chatEndRef = useRef(null);
 
     const scrollToBottom = () => {

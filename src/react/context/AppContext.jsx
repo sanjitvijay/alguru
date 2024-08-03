@@ -1,18 +1,24 @@
 import React, {createContext, useRef, useState} from 'react';
 import { useAIContext } from './AIContext';
+import {useVoiceChatContext} from "./VoiceChatContext.jsx";
 // Create a new context
 const AppContext = createContext();
 export const useAppContext = () => React.useContext(AppContext);
 
 // Create a context provider component
 export const AppContextProvider = ({ children }) => {
-    const { openai } = useAIContext();
+    const { fetchStreamedResponse } = useAIContext();
+    const [audio, setAudio] = useState(null);
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [code, setCode] = useState("");
     const [language, setLanguage] = useState("");
     const [question, setQuestion] = useState("");
+
+    const [isChat, setIsChat] = useState(true);
+
+
 
     const instructions =
         `You are a coding tutor who is an expert at leetcode 
@@ -21,7 +27,7 @@ export const AppContextProvider = ({ children }) => {
     Format the response in github flavored markdown and use
     elements like lists, headers, and tables to make it look like a chat.
     
-    Use latex for all math expressions and surround math with $. For example, $\\sqrt{c}$ 
+    Use latex for all math expressions and big-O notation, surround with $ delimiters for rendering.
     
     Only answer the latest question asked by the student, the other questions are
     previously asked questions provided for context. 
@@ -35,7 +41,7 @@ export const AppContextProvider = ({ children }) => {
         {
             role: 'user',
             content: `
-                I am solving ${title}, here is the description: ${description}.
+                I am solving Leetcode ${title}
             `
         }
     ]
@@ -106,7 +112,7 @@ export const AppContextProvider = ({ children }) => {
     const createMessages = () => {
         if(messageHistory.length > 6){
             const relevantMessages = messageHistory.slice(-6);
-            return [messageHistory[0], ...relevantMessages];
+            return [...initialMessageHistory, ...relevantMessages];
         }
         else return messageHistory;
     }
@@ -132,11 +138,7 @@ export const AppContextProvider = ({ children }) => {
 
         const relevantMessages = createMessages();
 
-        const stream = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            messages: relevantMessages,
-            stream: true
-        });
+        const stream = await fetchStreamedResponse(relevantMessages);
 
         chatHistory.push(
             {
@@ -169,6 +171,11 @@ export const AppContextProvider = ({ children }) => {
         setResponse("");
     }
 
+    const toggleMode = () => {
+        setIsChat(!isChat);
+        setAudio(null);
+    };
+
     return (
         <AppContext.Provider value=
         {{ 
@@ -179,6 +186,8 @@ export const AppContextProvider = ({ children }) => {
             question, setQuestion,
             messageHistory, setMessageHistory,
             chatHistory, setChatHistory,
+            audio, setAudio,
+            isChat, toggleMode,
             askQuestion,
             getProblemInfo,
             resetHistory,
