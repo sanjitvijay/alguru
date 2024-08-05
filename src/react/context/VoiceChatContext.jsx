@@ -13,7 +13,7 @@ export const VoiceChatProvider = ({ children }) => {
     } = useSpeechRecognition();
 
     const {generateCompletion, generateAudioBuffer} = useAIContext();
-    const {title, code, language, audio, setAudio} = useAppContext();
+    const {title, code, language, audio, setAudio, incrementVoiceUsage} = useAppContext();
 
     const [thinking, setThinking] = useState(false);
     const [responseText, setResponseText] = useState('');
@@ -46,7 +46,6 @@ export const VoiceChatProvider = ({ children }) => {
             const audioData = await generateAudioBuffer(text);
             const audioBlob = new Blob([audioData], { type: 'audio/wav' });
             const audioUrl = URL.createObjectURL(audioBlob);
-            console.log(audioUrl)
             setAudio(audioUrl);
         } catch (error) {
             console.error('Error generating speech:', error);
@@ -94,6 +93,7 @@ export const VoiceChatProvider = ({ children }) => {
             setResponseText(response);
             await generateAudio(response);
             setThinking(false)
+            incrementVoiceUsage();
         }
     }
 

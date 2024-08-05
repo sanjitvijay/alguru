@@ -1,11 +1,11 @@
-import React, {createContext, useRef, useState} from 'react';
+import React, {createContext, useEffect, useRef, useState} from 'react';
 import { useAIContext } from './AIContext';
 import {useVoiceChatContext} from "./VoiceChatContext.jsx";
-// Create a new context
+
 const AppContext = createContext();
 export const useAppContext = () => React.useContext(AppContext);
 
-// Create a context provider component
+
 export const AppContextProvider = ({ children }) => {
     const { fetchStreamedResponse } = useAIContext();
     const [audio, setAudio] = useState(null);
@@ -18,7 +18,18 @@ export const AppContextProvider = ({ children }) => {
 
     const [isChat, setIsChat] = useState(true);
 
+    const [chatUsage, setChatUsage] = useState(0);
+    const [voiceUsage, setVoiceUsage] = useState(0);
 
+    const [isChatAvailable, setIsChatAvailable] = useState(true);
+    const [isVoiceAvailable, setIsVoiceAvailable] = useState(true);
+
+    const cooldownHours = 12;
+    const maxChatUsage = 15;
+    const maxVoiceUsage = 8;
+    
+    const [chatUnlockTime, setChatUnlockTime] = useState(null);
+    const [voiceUnlockTime, setVoiceUnlockTime] = useState(null);
 
     const instructions =
         `You are a coding tutor who is an expert at leetcode 
@@ -27,7 +38,7 @@ export const AppContextProvider = ({ children }) => {
     Format the response in github flavored markdown and use
     elements like lists, headers, and tables to make it look like a chat.
     
-    Use latex for all math expressions and big-O notation, surround with $ delimiters for rendering.
+    Use latex for all math expressions and big-O notation, surround all latex expressions with $ delimiters.
     
     Only answer the latest question asked by the student, the other questions are
     previously asked questions provided for context. 
@@ -169,12 +180,91 @@ export const AppContextProvider = ({ children }) => {
 
         responseRef.current = "";
         setResponse("");
+
+        incrementChatUsage();
     }
 
     const toggleMode = () => {
         setIsChat(!isChat);
         setAudio(null);
-    };
+    }
+
+    const setUsageCounts = async () => {
+        const result = await chrome.storage.sync.get(['chatUsage', 'voiceUsage', 'chatExpired', 'voiceExpired']);
+
+        result.chatExpired && setChatUnlockTime(result.chatExpired + (cooldownHours * 60 * 60 * 1000));
+        result.voiceExpired && setVoiceUnlockTime(result.voiceExpired + (cooldownHours * 60 * 60 * 1000));
+        
+        const chatElapsedTime = (new Date().getTime() - result.chatExpired) / (1000 * 60 * 60);
+        const voiceElapsedTime = (new Date().getTime() - result.voiceExpired) / (1000 * 60 * 60);
+
+        if(!result.chatUsage || chatElapsedTime >= cooldownHours) {
+            await chrome.storage.sync.set({chatUsage: 0});
+            setChatUsage(0);
+        }
+        else{
+            setChatUsage(result.chatUsage);
+        }
+
+        if(!result.voiceUsage || voiceElapsedTime >= cooldownHours) {
+            await chrome.storage.sync.set({voiceUsage: 0});
+            setVoiceUsage(0);
+        }
+        else {
+            setVoiceUsage(result.voiceUsage);
+        }
+
+        await checkUsage(chatUsage, voiceUsage);
+    }
+
+    const incrementChatUsage = async () => {
+        setChatUsage(chatUsage + 1);
+        await chrome.storage.sync.set({chatUsage: chatUsage + 1});
+
+        if(chatUsage + 1 >= maxChatUsage) {
+            const currentTime = new Date().getTime()
+            setChatUnlockTime(currentTime + (cooldownHours * 60 * 60 * 1000));
+            await chrome.storage.sync.set({chatExpired: currentTime})
+        }
+    }
+
+    const incrementVoiceUsage = async () => {
+        setVoiceUsage(voiceUsage + 1);
+        await chrome.storage.sync.set({voiceUsage: voiceUsage + 1});
+
+        if(voiceUsage + 1 >= maxVoiceUsage){
+            const currentTime = new Date().getTime()
+            setVoiceUnlockTime(currentTime + (cooldownHours * 60 * 60 * 1000));
+            await chrome.storage.sync.set({voiceExpired: currentTime})
+        }
+    }
+
+    const checkUsage = async (currentChatUsage, currentVoiceUsage) => {
+        if(isChat){
+            if(currentChatUsage >= maxChatUsage){
+                const modal = document.getElementById('chat_usage_limit_modal');
+                modal.showModal();
+                setIsChatAvailable(false);
+            }
+        }
+        else{
+            if(currentVoiceUsage >= maxVoiceUsage){
+                const modal = document.getElementById('voice_usage_limit_modal');
+                modal.showModal();
+                setIsVoiceAvailable(false);
+            }
+        }
+    }
+
+    const isValidPage = () => {
+        return !!(title && code);
+    }
+
+    useEffect(() => {
+        checkUsage(chatUsage, voiceUsage);
+    }, [chatUsage, voiceUsage, isChat]);
+
+
 
     return (
         <AppContext.Provider value=
@@ -191,6 +281,10 @@ export const AppContextProvider = ({ children }) => {
             askQuestion,
             getProblemInfo,
             resetHistory,
+            setUsageCounts, incrementChatUsage, incrementVoiceUsage, checkUsage,
+            isChatAvailable, isVoiceAvailable,
+            chatUnlockTime, voiceUnlockTime,
+            isValidPage
         }}>
             {children}
         </AppContext.Provider>

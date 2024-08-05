@@ -4,24 +4,31 @@ import { FaRegLightbulb } from "react-icons/fa";
 import { FaQuestion } from "react-icons/fa6";
 import { FaBug } from "react-icons/fa";
 import {Mic} from "lucide-react";
-import {useSpeechRecognition} from "react-speech-recognition";
+import speech, {useSpeechRecognition} from "react-speech-recognition";
 import {CircleStop} from "lucide-react";
+import {useAppContext} from "../context/AppContext.jsx";
 
 
 function Voice() {
     const {audio, onStartListening, onStopListening, thinking, responseText, setResponseText} = useVoiceChatContext();
+    const {isVoiceAvailable} = useAppContext();
     const {listening, transcript} = useSpeechRecognition();
 
     const onAudioEnded = () => {
         setResponseText('');
-        onStartListening();
+        if(isVoiceAvailable){
+            onStartListening()
+        }
+        else{
+            speech.resetTranscript();
+        }
     }
     return (
         <div>
             {audio && <audio src={audio} autoPlay onEnded={onAudioEnded}/>}
             <div className='text-center mb-5'>
                 <div className='text-2xl font-bold'>Talk to Alguru</div>
-                <div className='text-lg'>Your personal coding interview coach</div>
+                <div className='text-lg'>Your AI-generated coding interview coach</div>
 
 
                 <button className="btn btn-xs mb-5" onClick={() => document.getElementById('help_modal').showModal()}>
@@ -52,7 +59,7 @@ function Voice() {
             </div>
 
 
-            <div className='flex justify-center items-center'>
+            {isVoiceAvailable && <div className='flex justify-center items-center'>
                 <div
                     className="h-10 rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 z-10 cursor-pointer border-gray-500 border-2 hover:p-[2px] hover:border-0"
                     onClick={onStartListening}
@@ -71,7 +78,7 @@ function Voice() {
                             />
                         }
                     </div>
-            </div>
+            </div>}
 
 
             <div className='flex justify-center items-end mt-16 h-10'>
