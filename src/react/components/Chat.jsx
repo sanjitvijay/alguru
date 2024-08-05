@@ -6,7 +6,7 @@ import {IoTrashOutline} from "react-icons/io5";
 
 
 function Chat() {
-    const {chatHistory, resetHistory} = useAppContext();
+    const {chatHistory} = useAppContext();
     const chatEndRef = useRef(null);
 
     const scrollToBottom = () => {
