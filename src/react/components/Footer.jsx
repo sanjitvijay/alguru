@@ -2,7 +2,6 @@ import { useEffect, useState } from "react"
 import { BsArrowUpCircleFill } from "react-icons/bs";
 import { useRef } from "react";
 import { useAppContext } from "../context/AppContext";
-import { SendHorizontal } from 'lucide-react';
 import {format} from "date-fns";
 
 function Footer() {
