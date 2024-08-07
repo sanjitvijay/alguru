@@ -51,7 +51,7 @@ function Footer() {
                                 <input
                                         ref={textareaRef}
                                         placeholder={placeholder}
-                                        className='w-full bg-transparent text-white text-lg px-3 focus:outline-none focus:ring-0 focus:border-gray-800 border-none h'
+                                        className='w-full bg-transparent text-black dark:text-white text-lg px-3 focus:outline-none focus:ring-0 focus:border-gray-800 border-none h'
                                         onChange={onChange}
                                     />
                                     <button

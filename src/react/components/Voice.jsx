@@ -61,7 +61,7 @@ function Voice() {
 
             {isVoiceAvailable && <div className='flex justify-center items-center'>
                 <div
-                    className="h-10 rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 z-10 cursor-pointer border-gray-500 border-2 hover:p-[2px] hover:border-0"
+                    className="h-10 rounded-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 z-10 cursor-pointer border-base-content border-2 hover:p-[2px] hover:border-0"
                     onClick={onStartListening}
                 >
                     <div

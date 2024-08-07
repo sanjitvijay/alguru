@@ -11,7 +11,7 @@ function Header() {
         <div className="flex h-10 w-full items-center justify-between bg-base-100 back py-8 px-3">
             <div className='flex items-center'>
                 <img src={logo} alt="logo" className="h-10 w-10 mr-3"/>
-                <div className="text-3xl text-white font-bold mr-11">Alguru</div>
+                <div className="text-3xl text-black dark:text-white font-bold mr-11">Alguru</div>
                 <SlidingToggle/>
             </div>
 

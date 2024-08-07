@@ -1,6 +1,5 @@
 import React, {createContext, useEffect, useRef, useState} from 'react';
 import { useAIContext } from './AIContext';
-import {useVoiceChatContext} from "./VoiceChatContext.jsx";
 
 const AppContext = createContext();
 export const useAppContext = () => React.useContext(AppContext);
@@ -77,9 +76,9 @@ export const AppContextProvider = ({ children }) => {
             target: { tabId: tab.id },
             function: function () {
                 let selectors = {
-                    title: "div > div.flex.w-full.flex-1.flex-col.gap-4.overflow-y-auto.px-4.py-5 > div.flex.items-start.justify-between.gap-4 > div",
+                    title: "div > div.flex.w-full.flex-1.flex-col.gap-4.overflow-y-auto.px-4.py-5 > div.flex.items-start.justify-between.gap-4 > div.flex.items-start.gap-2 > div > a",
                     description: "div > div.flex.w-full.flex-1.flex-col.gap-4.overflow-y-auto.px-4.py-5 > div.elfjS",
-                    code: "div.flex.flex-1.flex-col.overflow-hidden.pb-2 > div.flex-1.overflow-hidden > div > div > div.overflow-guard > div.monaco-scrollable-element.editor-scrollable.vs-dark.mac > div.lines-content.monaco-editor-background > div.view-lines.monaco-mouse-cursor-text",
+                    code: "div.flex.flex-1.flex-col.overflow-hidden.pb-2 > div.flex-1.overflow-hidden > div > div > div.overflow-guard > div.monaco-scrollable-element.editor-scrollable > div.lines-content.monaco-editor-background > div.view-lines.monaco-mouse-cursor-text",
                     language:"div.flex.h-8.items-center.justify-between.border-b.p-1.border-border-quaternary.dark\\:border-border-quaternary > div.flex.flex-nowrap.items-center > div:nth-child(1)"
                 };
 
@@ -92,6 +91,7 @@ export const AppContextProvider = ({ children }) => {
             },
         }, async (results) => {
             // results[0].result contains the returned object from the injected function
+            console.log(results);
             setTitle(results[0].result.title);
             setDescription(results[0].result.description);
             setCode(results[0].result.code);

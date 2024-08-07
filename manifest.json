@@ -19,12 +19,6 @@
   "background": {
     "service_worker": "background.js"
   },
-  "content_scripts": [
-    {
-      "matches": ["https://leetcode.com/problems/*"],
-      "js": ["contentScript.js"]
-    }
-  ],
   "permissions": [
     "scripting",
     "activeTab",

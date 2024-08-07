@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { MessageCircle, Mic } from 'lucide-react';
 import {useAppContext} from "../context/AppContext.jsx";
 
@@ -7,7 +7,7 @@ const SlidingToggle = () => {
 
     return (
         <div
-            className="relative w-24 h-12 bg-transparent border-gray-500 border-2 rounded-full p-0.5 cursor-pointer"
+            className="relative w-24 h-12 bg-transparent border-base-content  border-2 rounded-full p-0.5 cursor-pointer"
             onClick={toggleMode}
         >
             <div
