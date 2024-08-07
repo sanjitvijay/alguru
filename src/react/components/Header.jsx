@@ -4,7 +4,7 @@ import { IoTrashOutline } from "react-icons/io5";
 import SlidingToggle from "./SlidingToggle.jsx";
 
 function Header() {
-  const { chatHistory, resetHistory } = useAppContext();
+  const { chatHistory, resetHistory, isChat } = useAppContext();
 
   return (
     <div className="w-full bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 pb-[2px] z-10 fixed">
@@ -18,7 +18,7 @@ function Header() {
         </div>
 
         <div>
-          {chatHistory.length !== 0 && (
+          {(chatHistory.length !== 0 && isChat) && (
             <button
               className="btn btn-xs btn-error btn-outline no-animation"
               onClick={resetHistory}
