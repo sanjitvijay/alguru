@@ -50,6 +50,7 @@ export const AppContextProvider = ({ children }) => {
       role: "user",
       content: `
                 I am solving Leetcode ${title}
+                Here is the description: ${description}
             `,
     },
   ];
