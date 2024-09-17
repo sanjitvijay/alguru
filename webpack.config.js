@@ -72,7 +72,11 @@ export default {
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
         use: ['file-loader'],
-      }
+      },
+      {
+        test: /\.md$/,
+        use: 'raw-loader'
+      },
     ]
   },
   resolve: {

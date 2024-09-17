@@ -13,6 +13,7 @@ import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import { FaRegClipboard } from "react-icons/fa";
 import { useState } from "react";
+import rehypeRaw from "rehype-raw";
 
 SyntaxHighlighter.registerLanguage("java", java);
 SyntaxHighlighter.registerLanguage("python", python);
@@ -37,7 +38,7 @@ function SystemChat({ response }) {
     <div className="prose prose-sm my-2">
       <Markdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex]}
+        rehypePlugins={[rehypeKatex, rehypeRaw]}
         children={response}
         components={{
           code(props) {
